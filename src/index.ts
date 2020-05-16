@@ -1,5 +1,7 @@
 import { LitElement, html, css, property } from "lit-element";
 import { login } from "tplink-cloud-api";
+import template from "./index.html";
+import style from "./index.css";
 
 export default class KasaDevice extends LitElement {
   private device;
@@ -7,22 +9,11 @@ export default class KasaDevice extends LitElement {
   private password;
   private user;
 
+  static styles = style;
+  render = template.bind(this);
+
   async run(event) {
-    const method = event.target.dataset.action;
-    switch (method) {
-      case "on": {
-        await this.device.powerOn();
-        break;
-      }
-      case "off": {
-        await this.device.powerOff();
-        break;
-      }
-      case "toggle": {
-        await this.device.toggle();
-        break;
-      }
-    }
+    await this.device[event.target.dataset.action]();
     this.updateState();
   }
 
@@ -38,16 +29,6 @@ export default class KasaDevice extends LitElement {
       this.device = tplink.getHS100("Air Purifier");
       this.updateState();
     })();
-  }
-
-  render() {
-    return html`
-      <button data-action="on" @click=${this.run}>On</button>
-      <button data-action="off" @click=${this.run}>Off</button>
-      <button data-action="toggle" @click=${this.run}>Toggle</button>
-      State: ${this.state ? "On" : "Off"}
-      <div id="clock"></div>
-    `;
   }
 }
 
